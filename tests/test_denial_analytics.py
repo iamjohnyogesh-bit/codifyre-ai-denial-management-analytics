@@ -9,6 +9,7 @@ import gen_sample_data
 from denial_analytics import load_denials, summarize, write_appeals
 from denial_codes import describe_carc
 from appeal_templates import generate_appeal
+from dashboard import render
 
 
 class DenialAnalyticsTest(unittest.TestCase):
@@ -75,6 +76,14 @@ class DenialAnalyticsTest(unittest.TestCase):
             if not d.appeal_filed and describe_carc(d.carc_code)[2])
         self.assertEqual(n, expected)
         self.assertEqual(len(os.listdir(out_dir)), n)
+
+    def test_dashboard_render(self):
+        s = summarize(self.denials, total_claims=1000)
+        page = render(s)
+        self.assertIn("Codifyre AI", page)
+        self.assertIn("Monthly trend", page)
+        self.assertIn("CARC", page)
+        self.assertIn("$", page)
 
     def test_empty_worklist(self):
         s = summarize([])
