@@ -18,6 +18,7 @@ worklist as a CSV and need answers in seconds, not a spreadsheet afternoon.
 - **Appeal tracking** - filed / won / lost / pending, win rate, recovered amount
 - **Appeal letter drafts** - category-specific letter templates (prior auth, timely filing, medical necessity, coding/modifier, eligibility, missing info) generated for every un-appealed, appealable denial
 - **CARC/RARC reference** - common Claim Adjustment Reason Codes and Remittance Advice Remark Codes baked in
+- **HTML dashboard** - render the JSON summary as a polished, self-contained dark-theme dashboard (KPI cards, payer/category/trend charts, CARC table) - opens in any browser, no internet needed
 - **Zero dependencies** - Python 3.9+ standard library only
 
 ## Quickstart
@@ -32,6 +33,9 @@ python denial_analytics.py data/sample_denials.csv --total-claims 1000
 # 3. Export JSON + draft appeal letters
 python denial_analytics.py data/sample_denials.csv \
     --total-claims 1000 --json report.json --appeals appeals_out/
+
+# 4. Render the HTML dashboard (see dashboard-sample.html for a sample)
+python dashboard.py report.json -o dashboard.html
 ```
 
 ## Sample output
@@ -76,6 +80,7 @@ denial_analytics.py    CLI: load CSV, compute KPIs, print report, export JSON/ap
 denial_codes.py        CARC/RARC reference data + lookups
 appeal_templates.py    Category-specific appeal letter templates
 gen_sample_data.py     Deterministic sample worklist generator
+dashboard.py           HTML dashboard renderer (self-contained, dark theme)
 data/                  Sample CSV (generated)
 tests/                 Unit tests (stdlib unittest)
 ```
@@ -90,7 +95,6 @@ python -m unittest discover -s tests -v
 
 - 835 ERA file import (map remittances straight into the worklist)
 - Payer-specific appeal address book
-- HTML dashboard export
 
 ## License
 
