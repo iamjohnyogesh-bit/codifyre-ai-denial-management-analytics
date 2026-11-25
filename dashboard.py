@@ -14,11 +14,16 @@ from datetime import date
 
 CSS = """
 :root { --bg:#0d1117; --card:#161b22; --border:#30363d; --text:#e6edf3;
-        --muted:#8b949e; --accent:#2f81f7; --good:#3fb950; --warn:#d29922; --bad:#f85149; }
+        --muted:#8b949e; --accent:#2f81f7; --good:#3fb950; --warn:#d29922; --bad:#f85149;
+        --track:#21262d; }
+body.light { --bg:#f6f8fa; --card:#ffffff; --border:#d0d7de; --text:#1f2328;
+        --muted:#57606a; --accent:#0969da; --good:#1a7f37; --warn:#9a6700; --bad:#cf222e;
+        --track:#eaeef2; }
 * { box-sizing:border-box; margin:0; padding:0; }
-body { background:var(--bg); color:var(--text); font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; padding:32px; }
+body { background:var(--bg); color:var(--text); font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; padding:32px; transition:background .2s,color .2s; }
 .wrap { max-width:1100px; margin:0 auto; }
-header { display:flex; justify-content:space-between; align-items:baseline; border-bottom:1px solid var(--border); padding-bottom:16px; margin-bottom:24px; }
+header { display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:16px; margin-bottom:24px; }
+.header-right { display:flex; align-items:center; gap:14px; }
 h1 { font-size:24px; } h1 span { color:var(--accent); }
 .date { color:var(--muted); font-size:13px; }
 .cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:14px; margin-bottom:28px; }
@@ -31,12 +36,12 @@ section { background:var(--card); border:1px solid var(--border); border-radius:
 h2 { font-size:16px; margin-bottom:16px; }
 .bar-row { display:grid; grid-template-columns:170px 1fr 110px; align-items:center; gap:12px; margin-bottom:10px; font-size:13px; }
 .bar-row .name { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.bar-track { background:#21262d; border-radius:5px; height:20px; overflow:hidden; }
+.bar-track { background:var(--track); border-radius:5px; height:20px; overflow:hidden; }
 .bar-fill { background:var(--accent); height:100%; border-radius:5px; }
 .bar-row .amt { text-align:right; color:var(--muted); }
 table { width:100%; border-collapse:collapse; font-size:13px; }
 th { text-align:left; color:var(--muted); font-weight:600; padding:8px 10px; border-bottom:1px solid var(--border); }
-td { padding:8px 10px; border-bottom:1px solid #21262d; }
+td { padding:8px 10px; border-bottom:1px solid var(--track); }
 tr:last-child td { border-bottom:none; }
 .tag { display:inline-block; padding:2px 8px; border-radius:10px; font-size:11px; }
 .tag.yes { background:rgba(63,185,80,.15); color:var(--good); }
@@ -44,6 +49,25 @@ tr:last-child td { border-bottom:none; }
 .cols { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
 @media (max-width:800px){ .cols { grid-template-columns:1fr; } }
 footer { color:var(--muted); font-size:12px; text-align:center; margin-top:24px; }
+.theme-btn { background:var(--card); color:var(--text); border:1px solid var(--border); border-radius:8px;
+             padding:7px 14px; font-size:13px; cursor:pointer; }
+.theme-btn:hover { border-color:var(--accent); }
+"""
+
+
+THEME_SCRIPT = """
+(function(){
+  var b=document.body, btn=document.getElementById('theme-toggle');
+  function apply(t){ b.classList.toggle('light', t==='light');
+    btn.textContent = t==='light' ? '\u263E Dark' : '\u2600 Light'; }
+  var saved=null; try{ saved=localStorage.getItem('codifyre-theme'); }catch(e){}
+  apply(saved==='light' ? 'light' : 'dark');
+  btn.addEventListener('click', function(){
+    var next = b.classList.contains('light') ? 'dark' : 'light';
+    apply(next);
+    try{ localStorage.setItem('codifyre-theme', next); }catch(e){}
+  });
+})();
 """
 
 
@@ -108,7 +132,8 @@ def render(summary, generated=None):
 <title>Codifyre AI - Denial Management Dashboard</title>
 <style>{CSS}</style></head><body><div class="wrap">
 <header><h1><span>Codifyre AI</span> &middot; Denial Management Dashboard</h1>
-<div class="date">Generated {esc(generated)}</div></header>
+<div class="header-right"><div class="date">Generated {esc(generated)}</div>
+<button id="theme-toggle" class="theme-btn">\u2600 Light</button></div></header>
 <div class="cards">{cards_html}</div>
 <div class="cols">
 <section><h2>Top payers by denied dollars</h2>{bar_rows(summary.get("by_payer", [])[:6])}</section>
@@ -119,7 +144,7 @@ def render(summary, generated=None):
 <table><tr><th>Code</th><th>Description</th><th>Count</th><th>Denied $</th><th>Status</th></tr>
 {carc_rows}</table></section>
 <footer>Built by Codifyre AI &middot; github.com/iamjohnyogesh-bit/codifyre-ai-denial-management-analytics</footer>
-</div></body></html>"""
+</div><script>{THEME_SCRIPT}</script></body></html>"""
 
 
 def main():
