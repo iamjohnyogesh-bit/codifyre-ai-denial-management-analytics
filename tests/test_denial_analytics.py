@@ -84,6 +84,10 @@ class DenialAnalyticsTest(unittest.TestCase):
         self.assertIn("Monthly trend", page)
         self.assertIn("CARC", page)
         self.assertIn("$", page)
+        # dark/light theme switch
+        self.assertIn('id="theme-toggle"', page)
+        self.assertIn("body.light", page)
+        self.assertIn("localStorage", page)
 
     def test_empty_worklist(self):
         s = summarize([])
